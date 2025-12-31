@@ -24,7 +24,6 @@ body {
 .muted { color: var(--muted); font-size: .9rem; }
 .full { width: 100%; }
 
-
 header {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
@@ -138,7 +137,6 @@ header {
   animation: pulse 2s infinite;
 }
 
-
 .mobile-menu{
   display:none;
   max-width:1280px;
@@ -154,7 +152,6 @@ header {
   font-weight:600;
 }
 .mobile-link:hover{ color: var(--grad1); }
-
 
 .hero {
   background: linear-gradient(135deg, var(--grad1) 0%, var(--grad2) 50%, #9333ea 100%);
@@ -241,6 +238,22 @@ header {
 
 .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
 
+.btn-apply {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-apply:hover {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
 .hero-image {
   text-align: center;
   font-size: 10rem;
@@ -268,9 +281,7 @@ header {
 .mini-title{ font-weight:800; }
 .mini-sub{ opacity:.9; font-size:.9rem; }
 
-
 .shop-wrap{ padding-top: 1rem; }
-
 
 .categories {
   max-width: 1280px;
@@ -304,7 +315,6 @@ header {
   box-shadow: 0 6px 16px rgba(124,58,237,.28);
   transform: scale(1.04);
 }
-
 
 .products-section {
   max-width: 1280px;
@@ -467,13 +477,11 @@ header {
 }
 .btn-add-cart:hover{ box-shadow: 0 6px 16px rgba(124,58,237,.35); transform: scale(1.03); }
 
-
 .empty-state{
   text-align:center;
   padding: 3rem 1rem;
 }
 .empty-emoji{ font-size: 3rem; margin-bottom: .5rem; }
-
 
 .info-section{
   padding: 4.25rem 1.5rem;
@@ -506,7 +514,6 @@ header {
 .info-icon{ font-size: 1.8rem; margin-bottom:.5rem; }
 .info-card h4{ font-size: 1.1rem; margin-bottom:.35rem; }
 .info-card p{ color: var(--muted); font-size:.95rem; }
-
 
 .contact-form{
   margin-top: 1.25rem;
@@ -547,7 +554,6 @@ header {
   flex-wrap:wrap;
 }
 
-
 .features {
   background: #0f172a;
   color: white;
@@ -566,7 +572,6 @@ header {
 .feature-icon { font-size: 3rem; margin-bottom: 1rem; }
 .feature-item h4 { font-size: 1.25rem; font-weight: 800; margin-bottom: .6rem; }
 .feature-item p { color: #94a3b8; }
-
 
 footer {
   background: #020617;
@@ -615,7 +620,6 @@ footer {
   font-size:.9rem;
 }
 
-
 .overlay{
   position:fixed;
   inset:0;
@@ -630,7 +634,7 @@ footer {
   display:none;
   align-items:center;
   justify-content:center;
-  z-index: 1500;
+  z-index: 2000;
   padding: 1.2rem;
 }
 .modal-card{
@@ -836,7 +840,6 @@ footer {
   font-size: 1.1rem;
 }
 
-
 .toasts{
   position: fixed;
   right: 1rem;
@@ -856,7 +859,6 @@ footer {
 }
 .toast-title{ font-weight: 900; margin-bottom: .2rem; }
 .toast-sub{ color: var(--muted); font-size:.9rem; }
-
 
 .qv{
   display:grid;
@@ -889,11 +891,9 @@ footer {
 .qv-actions .btn-secondary{ color:#0f172a; border-color: #cbd5e1; }
 .qv-actions .btn-secondary:hover{ background: var(--soft); }
 
-
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
 @keyframes float { 0%,100%{transform: translateY(0) rotate(12deg)} 50%{transform: translateY(-20px) rotate(12deg)} }
 @keyframes fadeIn { from{opacity:0; transform: translateY(20px)} to{opacity:1; transform: translateY(0)} }
-
 
 @media (max-width: 980px){
   .checkout-grid{ grid-template-columns: 1fr; }

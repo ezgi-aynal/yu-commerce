@@ -5,7 +5,6 @@ const products = [
   { id: 4, name: "Minimalist Sneakers", price: 129, category: "fashion", rating: 4.6, image: "👟", tag: "Sale", stock: 22 },
   { id: 5, name: "Portable Bluetooth Speaker", price: 89, category: "electronics", rating: 4.5, image: "🔊", tag: "Hot", stock: 30 },
   { id: 6, name: "Classic Sunglasses", price: 179, category: "fashion", rating: 4.8, image: "🕶️", tag: "New", stock: 15 },
-
   { id: 7, name: "Aroma Candle Set", price: 59, category: "lifestyle", rating: 4.6, image: "🕯️", tag: "New", stock: 40 },
   { id: 8, name: "Minimal Desk Lamp", price: 119, category: "lifestyle", rating: 4.7, image: "💡", tag: "Hot", stock: 16 },
   { id: 9, name: "Noise Cancelling Earbuds", price: 159, category: "electronics", rating: 4.6, image: "🎶", tag: "Sale", stock: 25 },
@@ -13,21 +12,20 @@ const products = [
 ];
 
 const LS = {
-  cart: "luxe_cart_v1",
-  wish: "luxe_wish_v1",
-  coupon: "luxe_coupon_v1",
+  cart: "yu_cart_v1",
+  wish: "yu_wish_v1",
+  coupon: "yu_coupon_v1",
 };
 
 let state = {
   category: "all",
   search: "",
   sort: "featured",
-  coupon: localStorage.getItem(LS.coupon) || "",
+  coupon: "",
   discount: 0,
-  cart: loadJSON(LS.cart, []),  
-  wish: loadJSON(LS.wish, []),  
+  cart: loadJSON(LS.cart, []),
+  wish: loadJSON(LS.wish, []),
 };
-
 
 const productsGrid = document.getElementById("productsGrid");
 const resultsText = document.getElementById("resultsText");
@@ -84,12 +82,9 @@ const fillDemoMsgBtn = document.getElementById("fillDemoMsgBtn");
 const burgerBtn = document.getElementById("burgerBtn");
 const mobileMenu = document.getElementById("mobileMenu");
 
-
 bindEvents();
-applyCouponFromState();
 renderAll();
 updateBadges();
-
 
 function bindEvents() {
   document.querySelectorAll(".category-btn").forEach((btn) => {
@@ -102,7 +97,6 @@ function bindEvents() {
     });
   });
 
-
   let t = null;
   searchInput?.addEventListener("input", (e) => {
     clearTimeout(t);
@@ -112,12 +106,10 @@ function bindEvents() {
     }, 120);
   });
 
-
   sortSelect?.addEventListener("change", (e) => {
     state.sort = e.target.value;
     renderProducts();
   });
-
 
   resetFiltersBtn?.addEventListener("click", () => {
     state.category = "all";
@@ -130,7 +122,6 @@ function bindEvents() {
     renderProducts();
   });
 
-
   cartBtn?.addEventListener("click", () => openDrawer("cart"));
   wishlistBtn?.addEventListener("click", () => openDrawer("wish"));
   closeCartBtn?.addEventListener("click", closeOverlays);
@@ -142,15 +133,25 @@ function bindEvents() {
     document.getElementById("shop").scrollIntoView({ behavior: "smooth" });
   });
 
-
   applyCouponBtn?.addEventListener("click", () => {
-    state.coupon = (couponInput.value || "").trim().toUpperCase();
-    localStorage.setItem(LS.coupon, state.coupon);
-    applyCouponFromState(true);
+    const code = (couponInput?.value || "").trim().toUpperCase();
+    state.coupon = code;
+    applyCouponFromState();
+
+    if (!code) {
+      toast("Coupon cleared", "");
+    } else if (code === "YU10") {
+      toast("Coupon applied", "YU10 (10% off)");
+    } else if (code === "FREESHIP") {
+      toast("Coupon applied", "FREESHIP ($15 off)");
+    } else {
+      toast("Invalid coupon", "Try: YU10 or FREESHIP");
+    }
+
     renderCart();
+    if (checkoutModal?.style?.display === "flex") openCheckout();
   });
 
- 
   checkoutBtn?.addEventListener("click", () => {
     if (state.cart.length === 0) {
       toast("Cart is empty", "Add items before checkout.");
@@ -167,21 +168,18 @@ function bindEvents() {
 
   checkoutForm?.addEventListener("submit", (e) => {
     e.preventDefault();
-
     toast("Order placed 🎉", "This is a UI demo (no real payment).");
-
     state.cart = [];
+    state.coupon = "";
+    state.discount = 0;
     saveJSON(LS.cart, state.cart);
     updateBadges();
     renderCart();
-
     checkoutModal.style.display = "none";
     closeOverlays();
   });
 
-
   closeProductModal?.addEventListener("click", closeProductQuickView);
-
 
   startShoppingBtn?.addEventListener("click", () => {
     document.getElementById("shop").scrollIntoView({ behavior: "smooth" });
@@ -189,7 +187,6 @@ function bindEvents() {
   viewCollectionBtn?.addEventListener("click", () => {
     document.getElementById("shop").scrollIntoView({ behavior: "smooth" });
   });
-
 
   wishlistClearBtn?.addEventListener("click", () => {
     state.wish = [];
@@ -199,11 +196,10 @@ function bindEvents() {
     toast("Wishlist cleared", "Your wishlist is now empty.");
   });
 
-
   fillDemoMsgBtn?.addEventListener("click", () => {
     document.getElementById("cName").value = "Ezgi";
     document.getElementById("cEmail").value = "ezgi@example.com";
-    document.getElementById("cMessage").value = "Hi LUXE team! This is a frontend demo message 🙂";
+    document.getElementById("cMessage").value = "Hi YU team! This is a frontend demo message 🙂";
   });
 
   contactForm?.addEventListener("submit", (e) => {
@@ -212,12 +208,10 @@ function bindEvents() {
     contactForm.reset();
   });
 
-
   burgerBtn?.addEventListener("click", () => {
     const open = mobileMenu.classList.toggle("open");
     mobileMenu.setAttribute("aria-hidden", String(!open));
   });
-
 
   document.querySelectorAll(".mobile-link").forEach(a => {
     a.addEventListener("click", () => {
@@ -225,7 +219,6 @@ function bindEvents() {
       mobileMenu.setAttribute("aria-hidden", "true");
     });
   });
-
 
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener("click", (e) => {
@@ -238,7 +231,6 @@ function bindEvents() {
     });
   });
 }
-
 
 function renderAll() {
   renderProducts();
@@ -264,7 +256,6 @@ function renderProducts() {
   emptyState.style.display = "none";
 
   productsGrid.innerHTML = list.map(p => productCardHTML(p)).join("");
-
 
   list.forEach((p) => {
     const addBtn = document.getElementById(`add_${p.id}`);
@@ -308,7 +299,6 @@ function renderCart() {
     });
   }
 
-
   const subtotal = calcSubtotal();
   const discount = calcDiscount(subtotal);
   const total = Math.max(0, subtotal - discount);
@@ -317,7 +307,7 @@ function renderCart() {
   discountText.textContent = `-$${money(discount)}`;
   totalText.textContent = `$${money(total)}`;
 
-  couponInput.value = state.coupon || "";
+  if (couponInput) couponInput.value = state.coupon || "";
 }
 
 function renderWishlist() {
@@ -341,10 +331,8 @@ function renderWishlist() {
   }
 }
 
-
 function getFilteredSortedProducts() {
   let list = [...products];
-
 
   if (state.category !== "all") {
     list = list.filter(p => p.category === state.category);
@@ -360,7 +348,6 @@ function getFilteredSortedProducts() {
     case "rating_desc": list.sort((a,b) => b.rating - a.rating); break;
     case "name_asc": list.sort((a,b) => a.name.localeCompare(b.name)); break;
     default:
-
       list.sort((a,b) => scoreFeatured(b) - scoreFeatured(a));
       break;
   }
@@ -372,7 +359,6 @@ function scoreFeatured(p){
   return (tagScore[p.tag] || 0) + p.rating;
 }
 
-
 function addToCart(id, qty) {
   const p = products.find(x => x.id === id);
   if (!p) return;
@@ -380,7 +366,6 @@ function addToCart(id, qty) {
   const row = state.cart.find(x => x.id === id);
   if (row) row.qty += qty;
   else state.cart.push({ id, qty });
-
 
   const cur = state.cart.find(x => x.id === id);
   cur.qty = Math.max(1, Math.min(cur.qty, p.stock));
@@ -425,32 +410,25 @@ function calcSubtotal() {
   }, 0);
 }
 
+function applyCouponFromState() {
+  const code = (state.coupon || "").trim().toUpperCase();
 
-function applyCouponFromState(showToast = false) {
-  const c = (state.coupon || "").trim().toUpperCase();
-
-
-  if (c === "LUXE10") {
-    state.discount = 10; 
-    if (showToast) toast("Coupon applied", "LUXE10 (10% off)");
-  } else if (c === "FREESHIP") {
-    state.discount = "SHIP15"; 
-    if (showToast) toast("Coupon applied", "FREESHIP ($15 off)");
-  } else if (c) {
-    state.discount = 0;
-    if (showToast) toast("Invalid coupon", "Try: LUXE10 or FREESHIP");
+  if (code === "YU10") {
+    state.discount = 10;
+  } else if (code === "FREESHIP") {
+    state.discount = "SHIP15";
   } else {
     state.discount = 0;
   }
 }
 
 function calcDiscount(subtotal) {
-  if (!state.coupon) return 0;
-  if (state.discount === 10) return Math.round(subtotal * 0.10);
-  if (state.discount === "SHIP15") return Math.min(15, subtotal);
+  const c = (state.coupon || "").trim().toUpperCase();
+  if (!c) return 0;
+  if (c === "YU10") return Math.round(subtotal * 0.10);
+  if (c === "FREESHIP") return Math.min(15, subtotal);
   return 0;
 }
-
 
 function toggleWish(id) {
   const p = products.find(x => x.id === id);
@@ -466,13 +444,12 @@ function toggleWish(id) {
   saveJSON(LS.wish, state.wish);
   updateBadges();
   renderWishlist();
-  renderProducts(); 
+  renderProducts();
 }
 
 function isWished(id) {
   return state.wish.includes(id);
 }
-
 
 function openDrawer(type) {
   overlay.style.display = "block";
@@ -503,7 +480,6 @@ function closeOverlays() {
   productModal.setAttribute("aria-hidden", "true");
   checkoutModal.setAttribute("aria-hidden", "true");
 }
-
 
 function openProductQuickView(id) {
   const p = products.find(x => x.id === id);
@@ -555,8 +531,12 @@ function closeProductQuickView() {
   }
 }
 
-
 function openCheckout() {
+  cartDrawer.style.display = "none";
+  wishlistDrawer.style.display = "none";
+  cartDrawer.setAttribute("aria-hidden", "true");
+  wishlistDrawer.setAttribute("aria-hidden", "true");
+
   const items = state.cart.map(ci => {
     const p = products.find(x => x.id === ci.id);
     return p ? { p, qty: ci.qty } : null;
@@ -577,12 +557,10 @@ function openCheckout() {
   coDiscount.textContent = `-$${money(discount)}`;
   coTotal.textContent = `$${money(total)}`;
 
- 
   overlay.style.display = "block";
   checkoutModal.style.display = "flex";
   checkoutModal.setAttribute("aria-hidden", "false");
 }
-
 
 function updateBadges() {
   const c = state.cart.reduce((sum, x) => sum + x.qty, 0);
@@ -599,7 +577,6 @@ function scrollToShopIfNeeded() {
   const top = shop.getBoundingClientRect().top;
   if (top > 220) shop.scrollIntoView({ behavior: "smooth" });
 }
-
 
 function productCardHTML(p) {
   const wished = isWished(p.id);
@@ -675,7 +652,6 @@ function wishItemHTML(p) {
   `;
 }
 
-
 function toast(title, sub) {
   const el = document.createElement("div");
   el.className = "toast";
@@ -693,7 +669,6 @@ function toast(title, sub) {
 
   setTimeout(() => el.remove(), 2800);
 }
-
 
 function stars(rating) {
   const full = Math.floor(rating);
@@ -728,7 +703,3 @@ function escapeHtml(str) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
-
-
-renderAll();
-updateBadges();
